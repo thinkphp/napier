@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+   <title>Natural logarithm based on cuba.js</title>
+   <link rel="stylesheet" href="http://yui.yahooapis.com/2.8.0r4/build/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
+   <link rel="stylesheet" href="http://yui.yahooapis.com/2.7.0/build/base/base.css" type="text/css">
+   <style type="text/css">
+body,html{background:#999;color:#000;}
+#doc{background:#fff;border:1em solid #fff;}
+form{background:#ccc;padding:.5em;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;}
+h1{color:#999;margin:10px 0;font-size:40px;}
+h2{margin:0;padding:.5em 0;color:#393;}
+h3{margin:0;padding:.5em 0;color:#036;}
+a:link{color:#369;}
+a:visited{color:#999;}
+a:hover{color:#69c;}
+a:active{color:#69c;}
+#form {background:#369;border-radius:10px;box-shadow:4px 4px 10px rgba(0,0,0,.7);padding: 14px 14px;}
+label{color: #fff}
+#doc {border-radius:10px;box-shadow:4px 4px 10px rgba(0,0,0,.7);padding: 14px 14px;}
+input[type=submit]{font-size: 20px;margin-left: 10px}
+input[type=text]{			
+	-webkit-transition: all 0.5s ease-in-out;
+	-moz-transition: all 0.5s ease-in-out;
+	transition: all 0.5s ease-in-out;
+      font-size: 24px
+}
+
+input[type=text]:focus{
+      -webkit-box-shadow:0 0 25px #ccc;
+	-moz-box-shadow:0 0 25px #ccc;
+	box-shadow:0 0 25px #ccc;
+      -webkit-transform: scale(1.05);
+      -moz-transform: scale(1.05);
+      transform: scale(1.05);
+}
+#results {
+    margin-top: 30px;
+    font-family: arial,verdana;
+    font-size: 30px;
+}
+#ft {margin-top: 20px}
+   </style>
+</head>
+<body class="yui-skin-sam">
+<div id="doc" class="yui-t7">
+   <div id="hd" role="banner"><h1>ln - Natural Logarithm based on cuba.js</h1></div>
+   <div id="bd" role="main">
+	<div class="yui-g">
+
+           <form action="#" id="form">
+             <div>
+                <label for="q">N:</label>
+                <input type="text" id="q" name="q" placeholder="Enter n, n > 0" required/> 
+                <input type="submit" id="enter" name="enter" value="Enter"/> 
+             </div> 
+           </form>
+
+           <div id="results"></div>
+
+	</div>
+	</div>
+   <div id="ft" role="contentinfo"><p>created by  @<a href="http://twitter.com/thinkphp">thinkphp</a> | Download on <a href="http://github.com/thinkphp/cuba.js">GitHub</a></p></div>
+</div>
+<script type="text/javascript" src="src/cuba.js"></script>
+<script type="text/javascript">
+
+//show me love to the module pattern
+var logn = function(){
+
+    var EPS = 0.00001,
+        processing = 'processing...';
+
+   //ln(a) = x <=> e^x = a => f(x) = e^x - a
+   function ln(a, li, ls) {
+
+         if( a == 1) {
+
+           return 0
+
+         } else {
+
+           if(Math.abs(li-ls) < EPS) return ((li+ls)/2)
+
+           if( (Math.exp(li)-a)*(Math.exp((li+ls)/2)-a) < 0) {
+                       
+                        return ln(a, li, (li+ls)/2)
+
+           } else {
+
+                        return ln(a, (li+ls)/2, ls)
+           }
+
+         }
+
+    }//end function ln
+
+    function solve(a) {
+
+       if(a>1) cuba.select('#results').html( 'ln(' + a + ') = ' + ln(a, 0, a) ).css('color: #000')
+
+               else 
+
+               cuba.select('#results').html( 'ln(' + a + ') = ' + ln(a, 0, -a-80) ).css('color: #000')
+    }//end function solve()
+
+    function init() {
+
+      //here is added handler to the form on event 'submit'
+      cuba.select('#form').on('submit', function( event ){
+
+        //prevent default; cancelBubble or return value is false
+        cuba.stopPropagation( event )
+    
+        //get user input 
+        var a = parseFloat(cuba.select('#q').value[0].value)
+
+        if(a == 0) {
+
+           cuba.select('#results').html('ln(0) = -Infinity') 
+           return false
+        } 
+
+        if(typeof a == 'number' && a < 0) {
+ 
+            var err = 'Invalid input for function!' 
+            cuba.select('#results').html(err) 
+            return false
+        }
+
+       if(typeof a == 'number' && a > 0) {
+
+          cuba.select('#results').html(processing).css('color: #363')
+
+          //solve the logarithm
+          window.setTimeout(function(){ 
+                 solve( a )
+          }, 1000)
+
+       } else {
+
+          cuba.select('#results').html('Error!') 
+          return false
+       }
+   })//end handler for submit event
+
+  }//end function init 
+
+  return {init: init} 
+}()
+
+//init natural logarithm
+logn.init()
+</script>
+</body>
+</html>
